@@ -7,66 +7,36 @@ import Login from './Login'
 import Posts from './Posts'
 import Random from './Random'
 
+/**
+ * !!! react-native-router-flux tips !!
+ *  - A higher-level "tabs" scene should wrap the tab scenes
+ *  - you can pass arbitrary props to a Scene by giving it the prop "passProps={true}"
+ */
+
+// This is for the "icon" prop on tabe Scenes
 class TabIcon extends Component {
-    render(){
-        return (
-            <Text style={{color: this.props.selected ? 'red' :'black'}}>{this.props.title}</Text>
-        );
+    render(){      
+      // Render the title of the tab here
+      return null
     }
 }
 
 class AppRouter extends Component {
   render() {
-    let styles = StyleSheet.create({
-      tabBar: {
-        borderTopWidth: 0.5,
-        borderColor: '#b7b7b7',
-        backgroundColor: '#fff',
-        opacity: 1
-      }
-    })
-
-    return (
-      <Router>
-        <Scene key={'root'}>
-          <Scene key={'tabs'} hideNavBar={true} tabs={true} tabBarStyle={styles.tabBar} direction={'vertical'}>
-            <Scene
-              key={'postsTab'}
-              title={'Feed'}
-              icon={TabIcon}
-              style={{paddingTop: 64}}
-            >
-              <Scene
-                key={'posts'}
-                component={Posts}
-                subreddit={'hot'}
-                title={'Reddit Posts'}
-                passProps={true}/>
-            </Scene>
-            <Scene
-              key={'randomTab'}
-              title={'Random'}
-              icon={TabIcon}
-              style={{paddingTop: 64}}
-            >
-              <Scene
-                key={'random'}
-                component={Random}
-                title={'Reddit Random'}
-                subreddit={'random'}
-                passProps={true} />
-            </Scene>
-          </Scene>
-
-          <Scene key={'login'} direction={'vertical'} title={'Login'} panHandlers={null}>
-            <Scene key={'loginContent'} title={'Login'} component={Login} style={{paddingTop: 64}} panHandlers={null} />
-          </Scene>
-        </Scene>
-
-
-      </Router>
-    )
+	
+    // Return <Router> and <Scenes> here
+   	return null
   }
 }
+
+// Feel free to use this style, or create your own
+let styles = StyleSheet.create({
+  tabBar: {
+    borderTopWidth: 0.5,
+    borderColor: '#b7b7b7',
+    backgroundColor: '#fff',
+    opacity: 1
+  }
+})
 
 export default connect()(AppRouter)
