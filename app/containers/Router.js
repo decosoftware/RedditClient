@@ -5,7 +5,7 @@ import { connect } from 'react-redux'
 
 import Login from './Login'
 import Posts from './Posts'
-import Sample from './Sample'
+import Random from './Random'
 
 class TabIcon extends Component {
     render(){
@@ -37,15 +37,25 @@ class AppRouter extends Component {
               icon={TabIcon}
               style={{paddingTop: 64}}
             >
-              <Scene key={'posts'} component={Posts} title={'Reddit Posts'} />
+              <Scene
+                key={'posts'}
+                component={Posts}
+                subreddit={'hot'}
+                title={'Reddit Posts'}
+                passProps={true}/>
             </Scene>
             <Scene
-              key={'sampleTab'}
-              title={'Sample'}
+              key={'randomTab'}
+              title={'Random'}
               icon={TabIcon}
               style={{paddingTop: 64}}
             >
-              <Scene key={'sample'} component={Sample} title={'Sample'} />
+              <Scene
+                key={'random'}
+                component={Random}
+                title={'Reddit Random'}
+                subreddit={'random'}
+                passProps={true} />
             </Scene>
           </Scene>
 

@@ -1,24 +1,49 @@
+import { setToken, getToken } from '../api/Storage'
+
 const types = {
   AUTHENTICATION_PENDING: 'AUTHENTICATION_PENDING',
   AUTHENTICATION_SUCCESS: 'AUTHENTICATION_SUCCESS',
   AUTHENTICATION_FAILURE: 'AUTHENTICATION_FAILURE'
 }
 
+const authenticationSuccess = (token) => {
+  setToken(token)
+  return {type: types.AUTHENTICATION_SUCCESS, token: token}
+}
+
+/**
+ * This works because of our redux-thunk middleware in ./store/configureStore
+ *
+ * ...action creators that return a function instead of an action.
+ * The thunk can be used to delay the dispatch of an action,
+ * or to dispatch only if a certain condition is met.
+ * The inner function receives dispatch and getState as parameters.
+ */
+const startAuthentication = () => async (dispatch) => {
+  // Try and retrieve token from storage
+  const token = await getToken()
+  return token ? (
+    // succesfully retrieved it
+    dispatch(authenticationSuccess(token))
+  ) : ({
+    // failed to retrieve it
+    type: types.AUTHENTICATION_PENDING
+  })
+}
+
+const authenticationFailure = (error) => {
+  return {type: types.AUTHENTICATION_FAILURE, error: error}
+}
+
 export const actionCreators = {
-  startAuthentication: () => {
-    return {type: types.AUTHENTICATION_PENDING}
-  },
-  authenticationSuccess: (token) => {
-    return {type: types.AUTHENTICATION_SUCCESS, token: token}
-  },
-  authenticationFailure: (error) => {
-    return {type: types.AUTHENTICATION_FAILURE, error: error}
-  },
+  startAuthentication,
+  authenticationSuccess,
+  authenticationFailure,
 }
 
 const initialState = {
   isAuthenticating: false,
-  token: null
+  token: null,
 }
 
 export const reducer = (state = initialState, action) => {

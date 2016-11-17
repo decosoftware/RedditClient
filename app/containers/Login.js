@@ -4,6 +4,8 @@ import { connect } from 'react-redux'
 import { Actions, ActionConst } from 'react-native-router-flux'
 import { userActionCreators } from '../redux'
 
+import Storage from '../api/Storage'
+
 const mapStateToProps = (state) => ({
   item: state.sample.sampleItem,
   isAuthenticating: state.user.isAuthenticating,
@@ -26,6 +28,17 @@ class Login extends Component {
     this.props.dispatch(userActionCreators.startAuthentication())
   }
 
+  componentDidUpdate() {
+    // the token must have been asynchronously loaded from available
+    this.popOnToken()
+  }
+
+  popOnToken = () => {
+    if (this.props.token) {
+      Actions.pop()
+    }
+  }
+
   // We watch for changes in navigation, because we asked Reddit to redirect us
   // to an arbitrary URL callback://login when the login has been completed.
   onNavigationStateChange = (navState) => {
@@ -34,8 +47,6 @@ class Login extends Component {
       const regex = /^about:\/\/callback\/login#access_token=(.+)&token/
       let accessToken = navState.url.match(regex)[1]
       this.props.dispatch(userActionCreators.authenticationSuccess(accessToken))
-      Actions.pop()
-      console.log('to tabs')
     }
   }
 

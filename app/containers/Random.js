@@ -1,5 +1,5 @@
 import React, { Component, PropTypes } from 'react'
-import { View, Text, ScrollView, StyleSheet } from 'react-native'
+import { View, Text, ListView, RefreshControl, StyleSheet } from 'react-native'
 import { connect } from 'react-redux'
 import { Actions } from 'react-native-router-flux'
 import { postsActionCreators } from '../redux'
@@ -9,20 +9,26 @@ import Post from '../components/Post'
 const mapStateToProps = (state) => ({
   item: state.sample.sampleItem,
   token: state.user.token,
-  posts: state.posts.subreddits.hot,
+  posts: state.posts.subreddits.random,
   postsError: state.posts.error,
   postsTimestamp: state.posts.timestamp,
   isFetchingPosts: state.posts.isFetching
 })
 
-
-
-class Posts extends Component {
+class Random extends Component {
   static propTypes = {
     item: PropTypes.object,
     dispatch: PropTypes.func.isRequired,
     token: PropTypes.string
 
+  }
+  constructor(props) {
+    super(props)
+    const { posts } = this.props
+    const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => r1 !== r2});
+    this.state = {
+      dataSource: ds.cloneWithRows(posts),
+    };
   }
 
   componentDidMount() {
@@ -40,6 +46,11 @@ class Posts extends Component {
     if (!this.props.token && nextProps.token) {
       this.fetchPostsIfNeeded(nextProps)
     }
+    this.setState({
+      dataSource: this.state.dataSource.cloneWithRows(
+        nextProps.posts
+      )
+    })
   }
 
   fetchPostsIfNeeded(nextProps) {
@@ -65,9 +76,39 @@ class Posts extends Component {
   }
 
 
+  renderPosts = (post) => {
+    const { title, subreddit, preview } = post.data
+    // ListView by default removes clipped subviews
+    // but only for children who have an overflow: 'hidden'
+    // on their style.
+    // Very simple but makes a huge difference!
+    return (
+      <View style={styles.listItem}>
+        <Post
+          key={post.data.id}
+          title={title}
+          subreddit={subreddit}
+          preview={preview}
+        />
+      </View>
+    )
+  }
+
+
+  fetchMorePosts = () => {
+
+  }
+
+  refreshPosts = () => {
+    const { dispatch, subreddit } = this.props
+    dispatch(postsActionCreators.fetchPosts(subreddit))
+  }
+
   /**
-   * Using a ScrollView
-   * https://facebook.github.io/react-native/docs/using-a-scrollview.html
+   * Using a ListView
+   * https://facebook.github.io/react-native/docs/using-a-listview.html
+   * ListView for perf
+   * https://facebook.github.io/react-native/docs/performance.html#listview-initial-rendering-is-too-slow-or-scroll-performance-is-bad-for-large-lists
    */
   render() {
     const { postsError, isFetchingPosts, postsTimestamp, posts } = this.props
@@ -84,20 +125,12 @@ class Posts extends Component {
         flex: 1,
         backgroundColor: '#eee',
         padding: 15
-      }
+      },
+      listItem: {
+        overflow: 'hidden',
+      },
     })
 
-    var renderPosts = () => posts.map((post, index) => {
-      const { title, subreddit, preview } = post.data
-      return (
-        <Post
-          key={index}
-          title={title}
-          subreddit={subreddit}
-          preview={preview}
-        />
-      )
-    })
 
     return (
       <View style={styles.container}>
@@ -108,23 +141,21 @@ class Posts extends Component {
           </View> :
           null
         }
-        {
-          !postsError && (isFetchingPosts || !postsTimestamp) ?
-          <View style={styles.loading}>
-            <Text>Loading...</Text>
-          </View> :
-          null
-        }
-        <ScrollView style={{flex: Math.min(posts.length, 1)}}>
-          {
-            posts.length > 0 ?
-            renderPosts() :
-            null
+        <ListView
+          enableEmptySections={true}
+          refreshControl={
+            <RefreshControl
+              refreshing={isFetchingPosts || !postsTimestamp}
+              onRefresh={this.refreshPosts}
+              onEndReached={this.fetchMorePosts}
+              />
           }
-        </ScrollView>
+          dataSource={this.state.dataSource}
+          renderRow={this.renderPosts}
+         />
       </View>
     )
   }
 }
 
-export default connect(mapStateToProps)(Posts)
+export default connect(mapStateToProps)(Random)

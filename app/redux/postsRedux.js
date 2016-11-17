@@ -7,28 +7,34 @@ const types = {
 }
 
 export const actionCreators = {
-  fetchPosts: () => (dispatch, getState) =>  {
+  fetchPosts: (subreddit) => (dispatch, getState) =>  {
     dispatch({type: types.FETCH_POSTS_PENDING, timestamp: Date.now()})
-    new RedditClient(getState().user.token).getPosts('hot')
+    console.log(subreddit)
+    new RedditClient(getState().user.token).getPosts(subreddit)
       .then((result) => {
         if (result.error) {
           dispatch(actionCreators.fetchPostsFailure(
             `${result.error}: ${result.message}`
           ))
         } else {
-          let items = result.data.children
-          dispatch(actionCreators.fetchPostsSuccess(items))
+          let items = null
+          if (Array.isArray(result)) {
+            items = result.reduce((all, subitems) => all.concat(subitems.data.children), [])
+          } else {
+            items = result.data.children
+          }
+          dispatch(actionCreators.fetchPostsSuccess(items, subreddit))
         }
       })
       .catch((error) => {
-        dispatch(actionCreators.fetchPostsFailure(error))
+        dispatch(actionCreators.fetchPostsFailure(error, subreddit))
       })
   },
-  fetchPostsSuccess: (items) => {
-    return {type: types.FETCH_POSTS_SUCCESS, items: items}
+  fetchPostsSuccess: (items, subreddit) => {
+    return {type: types.FETCH_POSTS_SUCCESS, subreddit, items}
   },
   fetchPostsFailure: (error) => {
-    return {type: types.FETCH_POSTS_FAILURE, error: error}
+    return {type: types.FETCH_POSTS_FAILURE, error}
   },
 }
 
@@ -36,7 +42,10 @@ const initialState = {
   isFetching: false,
   token: null,
   timestamp: null,
-  items: []
+  subreddits: {
+    hot: [],
+    random: [],
+  }
 }
 
 export const reducer = (state = initialState, action) => {
@@ -55,7 +64,10 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         isFetching: false,
-        items: action.items,
+        subreddits: {
+          ...state.subreddits,
+          [action.subreddit]: action.items || [],
+        },
         error: null
       }
     }
@@ -63,7 +75,10 @@ export const reducer = (state = initialState, action) => {
       return {
         ...state,
         isFetching: false,
-        items: [],
+        subreddits: {
+          ...state.subreddits,
+          [action.subreddit]: [],
+        },
         error: action.error
       }
     }
