@@ -112,24 +112,6 @@ class Random extends Component {
    */
   render() {
     const { postsError, isFetchingPosts, postsTimestamp, posts } = this.props
-    let styles = StyleSheet.create({
-      container: {
-        flex: 1
-      },
-      error: {
-        flex: 1,
-        backgroundColor: 'red',
-        padding: 15
-      },
-      loading: {
-        flex: 1,
-        backgroundColor: '#eee',
-        padding: 15
-      },
-      listItem: {
-        overflow: 'hidden',
-      },
-    })
 
 
     return (
@@ -157,5 +139,24 @@ class Random extends Component {
     )
   }
 }
+
+let styles = StyleSheet.create({
+  container: {
+    flex: 1
+  },
+  error: {
+    flex: 1,
+    backgroundColor: 'red',
+    padding: 15
+  },
+  loading: {
+    flex: 1,
+    backgroundColor: '#eee',
+    padding: 15
+  },
+  listItem: {
+    overflow: 'hidden',
+  },
+})
 
 export default connect(mapStateToProps)(Random)

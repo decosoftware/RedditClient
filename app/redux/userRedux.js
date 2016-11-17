@@ -25,7 +25,7 @@ const startAuthentication = () => async (dispatch) => {
   return token ? (
     // succesfully retrieved it
     dispatch(authenticationSuccess(token))
-  ) : ({
+  ) : dispatch({
     // failed to retrieve it
     type: types.AUTHENTICATION_PENDING
   })

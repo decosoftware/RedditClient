@@ -28,7 +28,6 @@ class AppRouter extends Component {
 
     return (
       <Router>
-
         <Scene key={'root'}>
           <Scene key={'tabs'} hideNavBar={true} tabs={true} tabBarStyle={styles.tabBar} direction={'vertical'}>
             <Scene

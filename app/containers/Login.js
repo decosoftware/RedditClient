@@ -33,7 +33,7 @@ class Login extends Component {
     this.popOnToken()
   }
 
-  popOnToken = () => {
+  popOnToken = () => {    
     if (this.props.token) {
       Actions.pop()
     }
