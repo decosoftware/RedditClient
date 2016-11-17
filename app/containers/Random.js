@@ -110,9 +110,6 @@ class Random extends Component {
         {this.renderPostOfType(post)}
       </View>
     )
-    
-    //t3 == article
-    
   }
 
 
@@ -133,7 +130,6 @@ class Random extends Component {
    */
   render() {
     const { postsError, isFetchingPosts, postsTimestamp, posts } = this.props
-
 
     return (
       <View style={styles.container}>
