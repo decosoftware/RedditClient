@@ -1,4 +1,4 @@
-import { setToken, getToken } from '../api/Storage'
+import { setToken, getToken, clearToken, tokenHasExpired } from '../api/Storage'
 
 const types = {
   AUTHENTICATION_PENDING: 'AUTHENTICATION_PENDING',
@@ -20,9 +20,13 @@ const authenticationSuccess = (token) => {
  * The inner function receives dispatch and getState as parameters.
  */
 const startAuthentication = () => async (dispatch) => {
-  // Try and retrieve token from storage
+  // Try and retrieve token from Storage
+  const tokenExpired = await tokenHasExpired()
   const token = await getToken()
-  return token ? (
+  if (tokenExpired) {
+    clearToken()
+  }
+  return (token && !tokenExpired) ? (
     // succesfully retrieved it
     dispatch(authenticationSuccess(token))
   ) : dispatch({

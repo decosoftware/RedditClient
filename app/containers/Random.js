@@ -5,6 +5,7 @@ import { Actions } from 'react-native-router-flux'
 import { postsActionCreators } from '../redux'
 
 import Post from '../components/Post'
+import Comment from '../components/Comment'
 
 const mapStateToProps = (state) => ({
   item: state.sample.sampleItem,
@@ -74,24 +75,44 @@ class Random extends Component {
       dispatch(postsActionCreators.fetchPosts(subreddit))
     }
   }
+  
+  renderPostOfType = (post) => {    
+    switch (post.kind) {
+      case "t1": {
+        const { body, subreddit, author } = post.data
+        return <Comment
+                 key={post.data.id}
+                 body={body}
+                 subreddit={subreddit}
+                 author={author} />
+                 
+      }
+      case "t3": {
+        const { title, subreddit, preview } = post.data
+        return <Post
+          key={post.data.id}
+          title={title}
+          subreddit={subreddit}
+          preview={preview}
+        />
+      }     
+    }
+  }
 
 
   renderPosts = (post) => {
-    const { title, subreddit, preview } = post.data
     // ListView by default removes clipped subviews
     // but only for children who have an overflow: 'hidden'
     // on their style.
     // Very simple but makes a huge difference!
     return (
       <View style={styles.listItem}>
-        <Post
-          key={post.data.id}
-          title={title}
-          subreddit={subreddit}
-          preview={preview}
-        />
+        {this.renderPostOfType(post)}
       </View>
     )
+    
+    //t3 == article
+    
   }
 
 
